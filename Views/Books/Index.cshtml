@@ -1,0 +1,88 @@
+@model IEnumerable<Book>
+@{
+    ViewData["Title"] = "Books";
+    var term = ViewBag.Term as string;
+    var sort = ViewBag.Sort as string;
+    int page = ViewBag.Page;
+    int totalPages = ViewBag.TotalPages;
+}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Books</h2>
+    <button class="btn btn-primary" id="btnAdd">Add Book</button>
+</div>
+
+<form class="row g-2 mb-3" method="get">
+    <div class="col-sm-4">
+        <input name="term" value="@term" class="form-control" placeholder="Search title/author/genre" />
+    </div>
+    <div class="col-sm-3">
+        <select name="sort" class="form-select">
+            <option value="title_desc" selected="@(sort == "title_desc")">Title ↓</option>
+            <option value="author" selected="@(sort == "author")">Author ↑</option>
+            <option value="author_desc" selected="@(sort == "author_desc")">Author ↓</option>
+            <option value="genre" selected="@(sort == "genre")">Genre ↑</option>
+            <option value="genre_desc" selected="@(sort == "genre_desc")">Genre ↓</option>
+            <option value="year" selected="@(sort == "year")">Year ↑</option>
+            <option value="year_desc" selected="@(sort == "year_desc")">Year ↓</option>
+        </select>
+    </div>
+    <div class="col-sm-2">
+        <button class="btn btn-outline-secondary w-100" type="submit">Apply</button>
+    </div>
+</form>
+
+<table class="table table-striped align-middle">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Author</th>
+            <th>Genre</th>
+            <th>Published</th>
+            <th style="width:160px;"></th>
+        </tr>
+    </thead>
+    <tbody id="booksBody">
+        @foreach (var b in Model)
+        {
+            <tr data-id="@b.Id">
+                <td>@b.Title</td>
+                <td>@b.Author?.Name</td>
+                <td>@b.Genre?.Name</td>
+                <td>@b.PublishedYear</td>
+                <td>
+                    <button class="btn btn-sm btn-warning btn-edit" data-id="@b.Id">Edit</button>
+                    <button class="btn btn-sm btn-danger btn-delete" data-id="@b.Id">Delete</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<nav>
+    <ul class="pagination">
+        @for (int i = 1; i <= totalPages; i++)
+        {
+            <li class="page-item @(i == page ? "active" : "")">
+                <a class="page-link" href="@Url.Action("Index", new { term = term, sort = sort, page = i })">@i</a>
+            </li>
+        }
+    </ul>
+</nav>
+
+<div class="modal fade" id="bookModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Book</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="bookModalBody">
+                Loading...
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="~/Views/Shared/_ValidationScriptsPartial.cshtml" />
+}
